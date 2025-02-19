@@ -11,7 +11,9 @@ pipeline {
     }
     stage('Build') {
       steps {
-        bat 'mvn clean install'
+        dir('COMP367App') {  
+          bat 'mvn clean install' 
+        }
       }
     }
   }
