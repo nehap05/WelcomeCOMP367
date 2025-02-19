@@ -1,29 +1,18 @@
 pipeline {
-    agent any
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/nehap05/WelcomeCOMP367.git'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                bat 'mvn clean package'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying to Tomcat...'
-            }
-        }
+  agent any
+  tools {
+    maven 'MAVEN3'  
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
+    stage('Build') {
+      steps {
+        sh 'mvn clean install'
+      }
+    }
+  }
 }
