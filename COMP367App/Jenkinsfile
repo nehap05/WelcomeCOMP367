@@ -13,7 +13,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    git branch: 'greeting-feature', 
+                        credentialsId: 'your-jenkins-git-credentials-id', 
+                        url: 'https://github.com/nehap05/WelcomeCOMP367.git'
+                }
+            }
+        }
+
+        stage('Verify Files') {
+            steps {
+                dir('COMP367App') {
+                    bat 'dir /s /b'  // Verify that Dockerfile exists
+                }
             }
         }
 
@@ -27,7 +39,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
+                dir('COMP367App') {  // Ensures we run inside the right directory
                     bat "docker build -t $IMAGE_NAME ."
                 }
             }
