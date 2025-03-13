@@ -3,7 +3,7 @@ FROM openjdk:17
 WORKDIR /app
 
 #Copy jar file
-COPY target/*.jar app.jar
+COPY target/COMP367App-0.0.1-SNAPSHOT.war app.war
 
 #Port 8080
 EXPOSE 8080
