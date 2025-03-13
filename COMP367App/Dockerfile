@@ -1,12 +1,14 @@
-FROM openjdk:17
+# Use Tomcat
+FROM tomcat:9.0
 
-WORKDIR /app
+#Working directory
+WORKDIR /usr/local/tomcat/webapps/
 
-#Copy jar file 
+#Copy WAR file into Tomcat’s webapps directory
 COPY target/COMP367App-0.0.1-SNAPSHOT.war app.war
 
 #Port 8080
 EXPOSE 8080
 
-#Run application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["catalina.sh", "run"]
+
