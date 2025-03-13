@@ -1,20 +1,66 @@
 pipeline {
-  agent any
-  tools {
-    maven 'MAVEN3'  
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    agent any
+
+    tools {
+        maven 'MAVEN3'
     }
-    stage('Build') {
-      steps {
-        dir('COMP367App') {  
-          bat 'mvn clean install' 
+
+    environment {
+        DOCKER_CREDENTIALS_ID = 'docker-hub'  
+        IMAGE_NAME = 'nehap05/maven-webapp'  
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-      }
+
+        stage('Build Maven Project') {
+            steps {
+                dir('COMP367App') {  
+                    bat 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    bat "docker build -t $IMAGE_NAME ."
+                }
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        bat "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    bat "docker push $IMAGE_NAME"
+                }
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                script {
+                    bat """
+                        docker stop maven-webapp || echo 'No container running'
+                        docker rm maven-webapp || echo 'No container to remove'
+                        docker run -d -p 8081:8080 --name maven-webapp $IMAGE_NAME
+                    """
+                }
+            }
+        }
     }
-  }
 }
